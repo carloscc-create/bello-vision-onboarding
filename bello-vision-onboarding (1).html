@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Bello Vision — Onboarding</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter+Tight:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #ffffff;
+    --ink: #0a0a0a;
+    --muted: #6b6b6b;
+    --line: #e8e8e8;
+    --line-soft: #f1f1f1;
+    --accent: #0a0a0a;
+    --warn-bg: #fafaf7;
+    --display: 'Fraunces', Georgia, serif;
+    --body: 'Inter Tight', -apple-system, BlinkMacSystemFont, sans-serif;
+    --max: 640px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  /* ============ LOADING ============ */
+  #loader {
+    position: fixed; inset: 0; background: #fff; z-index: 100;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 28px;
+    transition: opacity 700ms ease, visibility 700ms ease;
+  }
+  #loader.hide { opacity: 0; visibility: hidden; pointer-events: none; }
+  .loader-mark {
+    font-family: var(--display);
+    font-weight: 300;
+    font-size: clamp(34px, 9vw, 56px);
+    letter-spacing: -0.02em;
+    font-style: italic;
+    color: var(--ink);
+    opacity: 0;
+    animation: fadeUp 1.1s ease forwards;
+  }
+  .loader-mark .amp { font-style: normal; font-weight: 400; }
+  .loader-bar {
+    width: min(220px, 60vw);
+    height: 1px; background: var(--line); position: relative; overflow: hidden;
+    opacity: 0;
+    animation: fadeUp 1.1s ease 0.3s forwards;
+  }
+  .loader-bar::after {
+    content: ''; position: absolute; left: -40%; top: 0; height: 100%; width: 40%;
+    background: var(--ink);
+    animation: slide 1.6s ease-in-out infinite;
+  }
+  .loader-tag {
+    font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--muted);
+    opacity: 0;
+    animation: fadeUp 1.1s ease 0.5s forwards;
+  }
+  @keyframes slide {
+    0% { left: -40%; } 100% { left: 100%; }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ============ APP SHELL ============ */
+  .app {
+    min-height: 100vh; min-height: 100dvh;
+    display: flex; flex-direction: column;
+    opacity: 0; transition: opacity 600ms ease;
+  }
+  .app.show { opacity: 1; }
+
+  header.topbar {
+    padding: 22px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .brand {
+    font-family: var(--display);
+    font-style: italic;
+    font-weight: 300;
+    font-size: 20px;
+    letter-spacing: -0.01em;
+  }
+  .progress-wrap {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted);
+  }
+  .progress-track {
+    width: 90px; height: 2px; background: var(--line); position: relative; overflow: hidden;
+  }
+  .progress-fill {
+    position: absolute; left: 0; top: 0; height: 100%; width: 0;
+    background: var(--ink); transition: width 500ms cubic-bezier(.6,.05,.2,1);
+  }
+
+  main.stage {
+    flex: 1;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px 24px 80px;
+    position: relative;
+  }
+  .screen {
+    width: 100%; max-width: var(--max);
+    display: none;
+    animation: enter 600ms cubic-bezier(.2,.7,.2,1) both;
+  }
+  .screen.active { display: block; }
+  @keyframes enter {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ============ TYPOGRAPHY ============ */
+  .eyebrow {
+    font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 22px;
+    display: inline-flex; align-items: center; gap: 10px;
+  }
+  .eyebrow::before {
+    content: ''; width: 18px; height: 1px; background: var(--ink);
+  }
+  h1.display {
+    font-family: var(--display);
+    font-weight: 300;
+    font-size: clamp(40px, 10vw, 72px);
+    line-height: 1.02;
+    letter-spacing: -0.025em;
+    margin-bottom: 24px;
+  }
+  h1.display em { font-style: italic; font-weight: 400; }
+  h2.section {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(28px, 6.5vw, 40px);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 14px;
+  }
+  h2.section em { font-style: italic; }
+  p.lead {
+    color: var(--muted);
+    font-size: 16px;
+    margin-bottom: 32px;
+    max-width: 52ch;
+  }
+
+  /* ============ BUTTONS ============ */
+  .btn-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-top: 32px; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 16px 28px;
+    font-family: var(--body);
+    font-size: 14px; font-weight: 500;
+    letter-spacing: 0.02em;
+    border-radius: 999px;
+    border: 1px solid var(--ink);
+    background: var(--ink); color: #fff;
+    cursor: pointer;
+    transition: transform 180ms ease, background 180ms ease, color 180ms ease;
+    min-height: 52px;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+  .btn .arrow { transition: transform 220ms ease; display: inline-block; }
+  .btn:hover .arrow { transform: translateX(4px); }
+  .btn.ghost {
+    background: transparent; color: var(--ink);
+  }
+  .btn.ghost:hover { background: var(--ink); color: #fff; }
+  .btn-link {
+    background: transparent; border: none; color: var(--muted); cursor: pointer;
+    font-family: var(--body); font-size: 13px; padding: 14px 4px;
+    text-decoration: underline; text-underline-offset: 4px;
+    text-decoration-color: var(--line);
+    transition: color 180ms ease, text-decoration-color 180ms ease;
+  }
+  .btn-link:hover { color: var(--ink); text-decoration-color: var(--ink); }
+
+  /* ============ INPUTS ============ */
+  .field { margin-top: 8px; }
+  .field label {
+    display: block;
+    font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 10px;
+  }
+  .field input, .field textarea, .field select {
+    width: 100%;
+    padding: 16px 18px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    font-family: var(--body);
+    font-size: 16px;
+    color: var(--ink);
+    background: #fff;
+    outline: none;
+    transition: border-color 180ms ease, box-shadow 180ms ease;
+    font-weight: 400;
+  }
+  .field textarea {
+    resize: vertical; min-height: 120px;
+    line-height: 1.55;
+  }
+  .field input:focus, .field textarea:focus, .field select:focus {
+    border-color: var(--ink);
+    box-shadow: 0 0 0 3px rgba(0,0,0,0.04);
+  }
+  .field .hint {
+    margin-top: 8px; font-size: 12px; color: var(--muted);
+  }
+
+  /* ============ STEP CONTENT ============ */
+  .video-frame {
+    margin-top: 8px;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--line-soft);
+    border: 1px solid var(--line);
+    position: relative;
+  }
+  .video-frame.loom-frame {
+    aspect-ratio: auto;
+    height: 0;
+    padding-bottom: 64.98%;
+  }
+  .video-frame iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+  }
+  .video-placeholder {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 14px;
+    color: var(--muted);
+    text-align: center;
+    padding: 24px;
+  }
+  .video-placeholder svg { width: 44px; height: 44px; }
+  .video-placeholder small { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; }
+
+  .step-list {
+    margin-top: 32px;
+    border-top: 1px solid var(--line-soft);
+  }
+  .step-item {
+    display: grid;
+    grid-template-columns: 36px 1fr;
+    gap: 16px;
+    padding: 22px 0;
+    border-bottom: 1px solid var(--line-soft);
+    align-items: flex-start;
+  }
+  .step-num {
+    font-family: var(--display);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 22px;
+    color: var(--ink);
+    line-height: 1.4;
+  }
+  .step-body { font-size: 15px; line-height: 1.6; }
+  .step-body strong { font-weight: 600; color: var(--ink); }
+  .step-body a {
+    color: var(--ink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: var(--ink);
+    word-break: break-all;
+    font-weight: 500;
+  }
+  .step-body code {
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 13px;
+    background: var(--line-soft);
+    padding: 3px 8px;
+    border-radius: 6px;
+    word-break: break-all;
+  }
+  .step-body .email {
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 13px;
+    color: var(--ink);
+  }
+
+  .toggle-group {
+    display: inline-flex;
+    background: var(--line-soft);
+    padding: 4px;
+    border-radius: 999px;
+    margin-bottom: 28px;
+    margin-top: 4px;
+  }
+  .toggle-group button {
+    padding: 10px 20px;
+    border: none;
+    background: transparent;
+    border-radius: 999px;
+    font-family: var(--body);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 220ms ease;
+  }
+  .toggle-group button.active {
+    background: #fff;
+    color: var(--ink);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+
+  .domain-panel { display: none; }
+  .domain-panel.active { display: block; animation: enter 360ms ease both; }
+
+  /* ============ COMPLETION ============ */
+  .checkmark-wrap {
+    margin: 8px 0 28px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .checkmark {
+    width: 44px; height: 44px;
+    border: 1px solid var(--ink);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .checkmark svg { width: 20px; height: 20px; }
+  .meta-line {
+    font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted);
+  }
+
+  .submit-status {
+    margin-top: 18px;
+    font-size: 13px;
+    color: var(--muted);
+    min-height: 20px;
+  }
+  .submit-status.error { color: #b00020; }
+  .submit-status.success { color: var(--ink); }
+
+  /* ============ MOBILE TUNING ============ */
+  @media (max-width: 480px) {
+    header.topbar { padding: 18px 20px; }
+    main.stage { padding: 28px 20px 60px; }
+    .progress-track { width: 70px; }
+    .btn { width: 100%; padding: 17px 24px; }
+    .btn-row { flex-direction: column-reverse; align-items: stretch; }
+    .btn-link { text-align: center; padding: 12px; width: 100%; }
+    .step-item { grid-template-columns: 28px 1fr; gap: 12px; padding: 18px 0; }
+    .step-num { font-size: 18px; }
+    .step-body { font-size: 14px; }
+  }
+
+  /* small grain texture for loader for "aesthetic vibe" */
+  #loader::before {
+    content: '';
+    position: absolute; inset: 0; pointer-events: none;
+    background-image: radial-gradient(rgba(0,0,0,0.025) 1px, transparent 1px);
+    background-size: 3px 3px;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ LOADING SCREEN ============ -->
+<div id="loader" aria-hidden="true">
+  <div class="loader-mark">bello <em>vision</em></div>
+  <div class="loader-bar"></div>
+  <div class="loader-tag">Preparing your onboarding</div>
+</div>
+
+<!-- ============ APP ============ -->
+<div class="app" id="app">
+  <header class="topbar">
+    <div class="brand">bello <em style="font-style:italic">vision</em></div>
+    <div class="progress-wrap" id="progressWrap" style="visibility:hidden">
+      <span id="progressLabel">Step 1 / 4</span>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+  </header>
+
+  <main class="stage">
+
+    <!-- ===== SCREEN 0: WELCOME ===== -->
+    <section class="screen active" id="screen-welcome">
+      <div class="eyebrow">Welcome</div>
+      <h1 class="display">Hello — and<br/><em>welcome</em> to Bello Vision.</h1>
+      <p class="lead">We're glad to have you. The next few steps will get your accounts connected so we can start working together. It takes about five minutes.</p>
+      <div class="btn-row">
+        <button class="btn" onclick="goTo('screen-name')">
+          Get started <span class="arrow">→</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ===== SCREEN 0.5: BUSINESS NAME ===== -->
+    <section class="screen" id="screen-name">
+      <div class="eyebrow">Before we begin</div>
+      <h2 class="section">What's your <em>business name?</em></h2>
+      <p class="lead">We use this to identify you in our system, so our team knows exactly who's onboarding.</p>
+      <div class="field">
+        <label for="businessName">Business name</label>
+        <input type="text" id="businessName" placeholder="e.g. Acme Co." autocomplete="organization" />
+        <div class="hint">This will be visible to our team only.</div>
+      </div>
+      <div class="btn-row">
+        <button class="btn" id="nameContinueBtn" onclick="confirmName()">
+          Continue <span class="arrow">→</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ===== SCREEN 1: FACEBOOK ===== -->
+    <section class="screen" id="screen-1">
+      <div class="eyebrow">Step 01 — Facebook</div>
+      <h2 class="section">Connect your <em>Facebook Business.</em></h2>
+      <p class="lead">Watch the short walkthrough below, then follow the steps to add Bello Vision as a partner on your Business Manager.</p>
+
+      <div class="video-frame loom-frame">
+        <iframe src="https://www.loom.com/embed/7812ff6c5a3d4bc095ad71162cb43282" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+      </div>
+
+      <div class="step-list">
+        <div class="step-item">
+          <div class="step-num">i.</div>
+          <div class="step-body">Go to <a href="https://business.facebook.com/latest/settings" target="_blank" rel="noopener">business.facebook.com/latest/settings</a></div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">ii.</div>
+          <div class="step-body">In the left menu, open <strong>Partners</strong>.</div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">iii.</div>
+          <div class="step-body">Click <strong>Add Partners → Give partner access to your account</strong>.</div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">iv.</div>
+          <div class="step-body">Enter our Partner Business ID: <code>1277812597545714</code></div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">v.</div>
+          <div class="step-body">Grant permissions for <strong>all asset types</strong> — ad accounts, pages, pixels, datasets, catalogs, and any others available.</div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn ghost" onclick="goTo('screen-name')">← Back</button>
+        <button class="btn" onclick="goTo('screen-2')">Done — Next step <span class="arrow">→</span></button>
+      </div>
+    </section>
+
+    <!-- ===== SCREEN 2: GMB ===== -->
+    <section class="screen" id="screen-2">
+      <div class="eyebrow">Step 02 — Google Business Profile</div>
+      <h2 class="section">Add us to your <em>Google Business Profile.</em></h2>
+      <p class="lead">This lets us help manage your locations, posts, reviews, and insights.</p>
+
+      <div class="video-frame loom-frame">
+        <iframe src="https://www.loom.com/embed/5660804e7181446f85acf68e77e0f1a2" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+      </div>
+
+      <div class="step-list">
+        <div class="step-item">
+          <div class="step-num">i.</div>
+          <div class="step-body">Open <a href="https://business.google.com/locations" target="_blank" rel="noopener">business.google.com/locations</a></div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">ii.</div>
+          <div class="step-body">Select your business, then go to <strong>People who can access my account</strong> (the menu may show as "Managers" depending on your view).</div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">iii.</div>
+          <div class="step-body">Add the following emails as <strong>Managers</strong>:
+            <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px">
+              <span class="email">contact@bello-vision.com</span>
+              <span class="email">carlos@bello-vision.com</span>
+            </div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">iv.</div>
+          <div class="step-body">Confirm and send the invites. We'll accept them on our end.</div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn ghost" onclick="goTo('screen-1')">← Back</button>
+        <button class="btn" onclick="goTo('screen-3')">Done — Next step <span class="arrow">→</span></button>
+      </div>
+    </section>
+
+    <!-- ===== SCREEN 3: DOMAIN ===== -->
+    <section class="screen" id="screen-3">
+      <div class="eyebrow">Step 03 — Domain</div>
+      <h2 class="section">Connect your <em>domain.</em></h2>
+      <p class="lead">Where is your domain registered? Choose an option below to see the right instructions.</p>
+
+      <div class="toggle-group" role="tablist">
+        <button class="active" data-tab="godaddy" onclick="switchDomain('godaddy', this)">GoDaddy</button>
+        <button data-tab="other" onclick="switchDomain('other', this)">Other</button>
+      </div>
+
+      <div class="domain-panel active" id="domain-godaddy">
+        <div class="video-frame loom-frame" style="margin-bottom: 8px;">
+          <iframe src="https://www.loom.com/embed/cff36888dd77464fa5277f69dbe21fcb" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+        </div>
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-num">i.</div>
+            <div class="step-body">Sign in at <a href="https://sso.godaddy.com/access" target="_blank" rel="noopener">sso.godaddy.com/access</a></div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">ii.</div>
+            <div class="step-body">Click <strong>People who can access my account</strong>.</div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">iii.</div>
+            <div class="step-body">Add the following emails as <strong>Managers</strong>:
+              <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px">
+                <span class="email">contact@bello-vision.com</span>
+                <span class="email">carlos@bello-vision.com</span>
+              </div>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">iv.</div>
+            <div class="step-body">Send the invitations — we'll handle the rest.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="domain-panel" id="domain-other">
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-num">i.</div>
+            <div class="step-body">Sign in to your domain registrar (Namecheap, Cloudflare, Google Domains, Squarespace, etc.).</div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">ii.</div>
+            <div class="step-body">Find the section for <strong>users, team members, or account access</strong>.</div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">iii.</div>
+            <div class="step-body">Invite the following emails with <strong>manager / admin</strong> level access:
+              <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px">
+                <span class="email">contact@bello-vision.com</span>
+                <span class="email">carlos@bello-vision.com</span>
+              </div>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">iv.</div>
+            <div class="step-body">If your registrar doesn't support shared access, mention it in the notes at the end and we'll guide you through DNS access instead.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn ghost" onclick="goTo('screen-2')">← Back</button>
+        <button class="btn" onclick="goTo('screen-4')">Done — Next step <span class="arrow">→</span></button>
+      </div>
+    </section>
+
+    <!-- ===== SCREEN 4: CALENDAR / CRM ===== -->
+    <section class="screen" id="screen-4">
+      <div class="eyebrow">Step 04 — Calendar &amp; CRM</div>
+      <h2 class="section">Give us <em>calendar or CRM</em> access.</h2>
+      <p class="lead">This is how we book and track leads end-to-end. Choose whichever applies to your setup — or both.</p>
+
+      <div class="step-list">
+        <div class="step-item">
+          <div class="step-num">A.</div>
+          <div class="step-body">
+            <strong>Google Calendar</strong><br/>
+            Open Google Calendar → <strong>Settings → Settings for my account → Add people and groups</strong>, then share with:
+            <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px">
+              <span class="email">contact@bello-vision.com</span>
+              <span class="email">carlos@bello-vision.com</span>
+            </div>
+            Set permission to <strong>"Make changes to events"</strong> or higher.
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">B.</div>
+          <div class="step-body">
+            <strong>Your CRM</strong> (HubSpot, GoHighLevel, Pipedrive, etc.)<br/>
+            Invite both emails above as <strong>Admin</strong> or <strong>Manager</strong> level users so we can see and update the pipeline.
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn ghost" onclick="goTo('screen-3')">← Back</button>
+        <button class="btn" onclick="goTo('screen-notes')">Done — Final step <span class="arrow">→</span></button>
+      </div>
+    </section>
+
+    <!-- ===== SCREEN 5: NOTES + SUBMIT ===== -->
+    <section class="screen" id="screen-notes">
+      <div class="eyebrow">Last step</div>
+      <h2 class="section">Anything we should <em>know?</em></h2>
+      <p class="lead">If something didn't work or you ran into issues, drop a note below. Our team will see it instantly. Leave it blank if everything went smoothly.</p>
+
+      <div class="field">
+        <label for="notes">Notes &amp; issues (optional)</label>
+        <textarea id="notes" placeholder="e.g. I couldn't find the Partners section in Facebook…"></textarea>
+        <div class="hint">This is sent directly to our team along with your business name.</div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn ghost" onclick="goTo('screen-4')">← Back</button>
+        <button class="btn" id="submitBtn" onclick="submitOnboarding()">
+          Finish onboarding <span class="arrow">→</span>
+        </button>
+      </div>
+      <div class="submit-status" id="submitStatus"></div>
+    </section>
+
+    <!-- ===== SCREEN 6: COMPLETE ===== -->
+    <section class="screen" id="screen-done">
+      <div class="checkmark-wrap">
+        <div class="checkmark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 12 10 18 20 6"/></svg>
+        </div>
+        <div class="meta-line">All set</div>
+      </div>
+      <h1 class="display">Welcome to <em>Bello Vision.</em></h1>
+      <p class="lead">Your onboarding is complete. We've received your details and our team will reach out shortly to confirm everything is connected on our side. Talk soon.</p>
+      <div class="btn-row">
+        <button class="btn ghost" onclick="restart()">Onboard another business</button>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  /* =====================================================
+     CONFIG — set your n8n webhook URL here
+     ===================================================== */
+  const WEBHOOK_URL = ""; // <-- paste your n8n webhook URL between the quotes
+
+  /* =====================================================
+     STATE
+     ===================================================== */
+  const state = {
+    businessName: "",
+    notes: "",
+    startedAt: null
+  };
+
+  // Map screens to progress (only steps 1–4 count toward the bar)
+  const progressMap = {
+    'screen-1': { step: 1, total: 4 },
+    'screen-2': { step: 2, total: 4 },
+    'screen-3': { step: 3, total: 4 },
+    'screen-4': { step: 4, total: 4 },
+    'screen-notes': { step: 4, total: 4 }
+  };
+
+  /* =====================================================
+     LOADING SCREEN → APP
+     ===================================================== */
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      document.getElementById('loader').classList.add('hide');
+      document.getElementById('app').classList.add('show');
+    }, 2200);
+  });
+
+  /* =====================================================
+     NAV
+     ===================================================== */
+  function goTo(id) {
+    const current = document.querySelector('.screen.active');
+    if (current) current.classList.remove('active');
+    const next = document.getElementById(id);
+    next.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    updateProgress(id);
+  }
+
+  function updateProgress(id) {
+    const wrap = document.getElementById('progressWrap');
+    const fill = document.getElementById('progressFill');
+    const label = document.getElementById('progressLabel');
+    if (progressMap[id]) {
+      const { step, total } = progressMap[id];
+      wrap.style.visibility = 'visible';
+      fill.style.width = ((step / total) * 100) + '%';
+      label.textContent = `Step ${step} / ${total}`;
+    } else {
+      wrap.style.visibility = 'hidden';
+    }
+  }
+
+  function confirmName() {
+    const input = document.getElementById('businessName');
+    const val = input.value.trim();
+    if (!val) {
+      input.focus();
+      input.style.borderColor = '#b00020';
+      input.style.boxShadow = '0 0 0 3px rgba(176,0,32,0.08)';
+      setTimeout(() => {
+        input.style.borderColor = '';
+        input.style.boxShadow = '';
+      }, 1400);
+      return;
+    }
+    state.businessName = val;
+    state.startedAt = new Date().toISOString();
+    goTo('screen-1');
+  }
+
+  function switchDomain(tab, btn) {
+    document.querySelectorAll('.toggle-group button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.domain-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('domain-' + tab).classList.add('active');
+  }
+
+  /* =====================================================
+     SUBMIT TO WEBHOOK
+     ===================================================== */
+  async function submitOnboarding() {
+    const btn = document.getElementById('submitBtn');
+    const status = document.getElementById('submitStatus');
+    const notesVal = document.getElementById('notes').value.trim();
+
+    state.notes = notesVal;
+
+    const payload = {
+      business_name: state.businessName,
+      notes: notesVal !== "" ? notesVal : "Hey no notes were made client successfully onboarded",
+      has_notes: notesVal !== "",
+      started_at: state.startedAt,
+      completed_at: new Date().toISOString(),
+      source: "bello-vision-onboarding"
+    };
+
+    btn.disabled = true;
+    btn.style.opacity = '0.6';
+    status.className = 'submit-status';
+    status.textContent = 'Sending…';
+
+    if (!WEBHOOK_URL) {
+      console.warn('No WEBHOOK_URL configured. Payload preview:', payload);
+      status.className = 'submit-status success';
+      status.textContent = '⚠ No webhook URL set yet — payload logged to console for testing.';
+      setTimeout(() => goTo('screen-done'), 900);
+      return;
+    }
+
+    try {
+      const res = await fetch(WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error('Webhook responded ' + res.status);
+      status.className = 'submit-status success';
+      status.textContent = 'Sent successfully.';
+      setTimeout(() => goTo('screen-done'), 600);
+    } catch (err) {
+      console.error(err);
+      status.className = 'submit-status error';
+      status.textContent = 'Could not reach the webhook. Please try again or contact us.';
+      btn.disabled = false;
+      btn.style.opacity = '1';
+    }
+  }
+
+  function restart() {
+    state.businessName = "";
+    state.notes = "";
+    document.getElementById('businessName').value = "";
+    document.getElementById('notes').value = "";
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = false;
+    btn.style.opacity = '1';
+    document.getElementById('submitStatus').textContent = "";
+    goTo('screen-welcome');
+    document.getElementById('progressWrap').style.visibility = 'hidden';
+  }
+</script>
+
+</body>
+</html>
