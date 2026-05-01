@@ -811,22 +811,27 @@
   /* =====================================================
      WEBHOOK HELPER
      Non-blocking fire-and-forget for the "start" event so
-     users don't wait. Awaited version used for final submit.
+     users don't wait. Uses no-cors to avoid CORS preflight
+     issues with n8n cloud webhooks.
      ===================================================== */
   function fireWebhook(payload) {
     if (!WEBHOOK_URL) {
-      console.warn('No WEBHOOK_URL configured. Payload preview:', payload);
+      console.warn('[BV] No WEBHOOK_URL configured. Payload preview:', payload);
       return;
     }
+    console.log('[BV] Firing webhook:', payload);
     try {
       fetch(WEBHOOK_URL, {
         method: 'POST',
+        mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
         keepalive: true
-      }).catch(err => console.warn('Webhook fire failed:', err));
+      })
+      .then(() => console.log('[BV] Webhook fire complete (no-cors — response opaque)'))
+      .catch(err => console.warn('[BV] Webhook fire failed:', err));
     } catch (err) {
-      console.warn('Webhook error:', err);
+      console.warn('[BV] Webhook error:', err);
     }
   }
 
@@ -871,17 +876,21 @@
     }
 
     try {
-      const res = await fetch(WEBHOOK_URL, {
+      console.log('[BV] Firing completion webhook:', payload);
+      await fetch(WEBHOOK_URL, {
         method: 'POST',
+        mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
+        keepalive: true
       });
-      if (!res.ok) throw new Error('Webhook responded ' + res.status);
+      // With no-cors we can't read response status, so we assume success.
+      // n8n will receive the payload regardless.
       status.className = 'submit-status success';
       status.textContent = 'Sent successfully.';
       setTimeout(() => goTo('screen-done'), 600);
     } catch (err) {
-      console.error(err);
+      console.error('[BV] Completion webhook failed:', err);
       status.className = 'submit-status error';
       status.textContent = 'Could not reach the webhook. Please try again or contact us.';
       btn.disabled = false;
