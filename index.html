@@ -810,9 +810,7 @@
 
   /* =====================================================
      WEBHOOK HELPER
-     Non-blocking fire-and-forget for the "start" event so
-     users don't wait. Uses no-cors to avoid CORS preflight
-     issues with n8n cloud webhooks.
+     Fire-and-forget for the "start" event so users don't wait.
      ===================================================== */
   function fireWebhook(payload) {
     if (!WEBHOOK_URL) {
@@ -823,12 +821,11 @@
     try {
       fetch(WEBHOOK_URL, {
         method: 'POST',
-        mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
         keepalive: true
       })
-      .then(() => console.log('[BV] Webhook fire complete (no-cors — response opaque)'))
+      .then(res => console.log('[BV] Webhook fire complete, status:', res.status))
       .catch(err => console.warn('[BV] Webhook fire failed:', err));
     } catch (err) {
       console.warn('[BV] Webhook error:', err);
@@ -877,15 +874,13 @@
 
     try {
       console.log('[BV] Firing completion webhook:', payload);
-      await fetch(WEBHOOK_URL, {
+      const res = await fetch(WEBHOOK_URL, {
         method: 'POST',
-        mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
         keepalive: true
       });
-      // With no-cors we can't read response status, so we assume success.
-      // n8n will receive the payload regardless.
+      if (!res.ok) throw new Error('Webhook responded ' + res.status);
       status.className = 'submit-status success';
       status.textContent = 'Sent successfully.';
       setTimeout(() => goTo('screen-done'), 600);
