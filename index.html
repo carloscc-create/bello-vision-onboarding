@@ -725,7 +725,7 @@
   /* =====================================================
      CONFIG — set your n8n webhook URL here
      ===================================================== */
-  const WEBHOOK_URL = ""; // <-- paste your n8n webhook URL between the quotes
+  const WEBHOOK_URL = "https://hypereach.app.n8n.cloud/webhook/1950cf28-e5f0-4f35-993d-27e56538989c";
 
   /* =====================================================
      STATE
@@ -796,7 +796,38 @@
     }
     state.businessName = val;
     state.startedAt = new Date().toISOString();
+
+    // Fire "started" webhook (non-blocking — user proceeds immediately)
+    fireWebhook({
+      event: "onboarding_started",
+      business_name: val,
+      started_at: state.startedAt,
+      source: "bello-vision-onboarding"
+    });
+
     goTo('screen-1');
+  }
+
+  /* =====================================================
+     WEBHOOK HELPER
+     Non-blocking fire-and-forget for the "start" event so
+     users don't wait. Awaited version used for final submit.
+     ===================================================== */
+  function fireWebhook(payload) {
+    if (!WEBHOOK_URL) {
+      console.warn('No WEBHOOK_URL configured. Payload preview:', payload);
+      return;
+    }
+    try {
+      fetch(WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        keepalive: true
+      }).catch(err => console.warn('Webhook fire failed:', err));
+    } catch (err) {
+      console.warn('Webhook error:', err);
+    }
   }
 
   function switchDomain(tab, btn) {
@@ -817,6 +848,7 @@
     state.notes = notesVal;
 
     const payload = {
+      event: "onboarding_completed",
       business_name: state.businessName,
       notes: notesVal !== "" ? notesVal : "Hey no notes were made client successfully onboarded",
       has_notes: notesVal !== "",
